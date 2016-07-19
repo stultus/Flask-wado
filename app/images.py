@@ -31,6 +31,7 @@ import StringIO
 
 from lib import *
 
+
 def calc_size(orig_size, max_size):
     tofloat = lambda x: (float(x[0]), float(x[1]))
     toint = lambda x: (int(x[0]), int(x[1]))
@@ -50,7 +51,8 @@ def calc_size(orig_size, max_size):
 
     return toint(new_size)
 
-class Dicom:
+
+class Dicom(object):
 
     def __init__(self, filename, format):
         """DICOM filename with full path, format can be either jpeg or png"""
@@ -69,7 +71,8 @@ class Dicom:
                 if format == 'jpeg':
                     quality = '--compr-quality 100'
                 try:
-                    trycmd("dcmj2pnm --write-%s %s --use-window 1 %s %s" % (format, quality, filename, converted))
+                    trycmd("dcmj2pnm --write-%s %s --use-window 1 %s %s" %
+                           (format, quality, filename, converted))
                 except CmdException:
                     trycmd("dcmj2pnm --write-%s %s %s %s" % (format, quality, filename, converted))
 
