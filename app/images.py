@@ -32,6 +32,8 @@ import StringIO
 from lib import *
 
 
+TMP_BASE_PATH = '/home/bgoldenberg/flask-wado/tmp'
+
 def calc_size(orig_size, max_size):
     tofloat = lambda x: (float(x[0]), float(x[1]))
     toint = lambda x: (int(x[0]), int(x[1]))
@@ -63,7 +65,7 @@ class Dicom(object):
         self.filename = filename
 
         if format != 'dicom':
-            converted = "%s.%s" % (filename, format)
+            converted = os.path.join(TMP_BASE_PATH, "%s.%s" % (os.path.split(filename)[1], format))
 
             if not os.path.isfile(converted):
 
@@ -76,7 +78,9 @@ class Dicom(object):
                 except CmdException:
                     trycmd("dcmj2pnm --write-%s %s %s %s" % (format, quality, filename, converted))
 
-                os.unlink(filename)
+                # Are you fucking kidding me? Deletes the old file with no comment?
+                # Commented out line left here for historical record.
+                # os.unlink(filename)
 
             self.img = Image.open(converted)
 

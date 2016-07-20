@@ -1,3 +1,4 @@
+-e git+ssh://git@github.com/enlitic/dblib@8e0e11a248c8fc72aa8ed141c96c1f5ffd6f186a#egg=dblib
 Flask==0.10.1
 Jinja2==2.7.3
 MarkupSafe==0.23
@@ -7,3 +8,5 @@ argparse==1.2.1
 distribute==0.6.24
 itsdangerous==0.24
 wsgiref==0.1.2
+sqlalchemy==1.0.14
+PyYAML==3.11

@@ -24,7 +24,12 @@ DICOM data access layer.
 Write your own __getfile function to suit your needs.
 """
 
+import os.path
+
 from lib import *
+from dblib import connections
+from dblib.models import Image
+from sqlalchemy.sql import select
 import images
 
 
@@ -32,8 +37,20 @@ def __getfile(studyUID, seriesUID, objectUID):
     # search the dicom file based on the parametrs and return the filename
     # implement your own function here, for now it just returns a hard-coded
     # value
-    objectfile = "sample.dcm"
-    return objectfile
+    engine = connections.get_engine(readonly=True)
+    q = select([Image.dicom_filepath]).\
+        where(Image.study_instance_uid == studyUID).\
+        where(Image.series_instance_uid == seriesUID).\
+        where(Image.sop_instance_uid == objectUID)
+
+    rows = engine.execute(q).fetchall()
+    print 'Received %s rows %s' % (len(rows), rows)
+
+    for row in rows:
+        if os.path.exists(row.dicom_filepath):
+            return row.dicom_filepath
+
+    raise ValueError("No valid DICOMs found.")
 
 
 def get(studyUID, seriesUID, objectUID, format='jpeg'):
