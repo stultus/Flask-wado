@@ -86,11 +86,14 @@ def check_params(kwargs):
 
 # index page
 @app.route('/')
+@app.route('/wado')
 @app.route('/index')
 def index():
     kwargs = {rows.split('=')[0]: rows.split('=')[1] for rows in
               request.query_string.split('&')}
-    check_params(kwargs)
+    # check_params(kwargs)
+    if 'contentType' not in kwargs:
+        kwargs['contentType'] = 'image/jpeg'
     if kwargs['contentType'] == "application/dicom":
         format = "dicom"
     else:
@@ -98,12 +101,12 @@ def index():
         format = kwargs['contentType'].replace('image/', '')
 
     # getting DICOM image from accessdata
-    image = accessdata.get(studyUID=kwargs['studyUID'],
-                           seriesUID=kwargs['seriesUID'],
-                           objectUID=kwargs['objectUID'],
+    image = accessdata.get(studyUID=kwargs.get('studyUID'),
+                           seriesUID=kwargs.get('seriesUID'),
+                           objectUID=kwargs.get('objectUID'),
                            format=format)
     if kwargs['contentType'] == "application/dicom":
-        return image.raw()
+        return image.raw(), 200, {'Content-Type': kwargs['contentType'], 'Pragma': 'cache'}
     if 'windowWidth' in kwargs:
         image.brightness(kwargs['windowWidth'])
 
@@ -119,4 +122,3 @@ def index():
     img = image.dump()
     return img, 200, {'Content-Type': kwargs['contentType'], 'Pragma': 'cache'}
 
-    return str(kwargs)

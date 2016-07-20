@@ -38,10 +38,15 @@ def __getfile(studyUID, seriesUID, objectUID):
     # implement your own function here, for now it just returns a hard-coded
     # value
     engine = connections.get_engine(readonly=True)
-    q = select([Image.dicom_filepath]).\
-        where(Image.study_instance_uid == studyUID).\
-        where(Image.series_instance_uid == seriesUID).\
-        where(Image.sop_instance_uid == objectUID)
+    q = select([Image.dicom_filepath])
+
+    if studyUID is not None:
+        q = q.where(Image.study_instance_uid == studyUID)
+    if seriesUID is not None:
+        q = q.where(Image.series_instance_uid == seriesUID)
+    # if objectUID is not None:
+
+    q = q.where(Image.sop_instance_uid == objectUID)
 
     rows = engine.execute(q).fetchall()
     print 'Received %s rows %s' % (len(rows), rows)
