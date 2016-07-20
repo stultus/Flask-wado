@@ -24,15 +24,39 @@ DICOM data access layer.
 Write your own __getfile function to suit your needs.
 """
 
+import os.path
+
 from lib import *
+from dblib import connections
+from dblib.models import Image
+from sqlalchemy.sql import select
 import images
+
 
 def __getfile(studyUID, seriesUID, objectUID):
     # search the dicom file based on the parametrs and return the filename
     # implement your own function here, for now it just returns a hard-coded
     # value
-    objectfile = "sample.dcm"
-    return objectfile
+    engine = connections.get_engine(readonly=True)
+    q = select([Image.dicom_filepath])
+
+    if studyUID is not None:
+        q = q.where(Image.study_instance_uid == studyUID)
+    if seriesUID is not None:
+        q = q.where(Image.series_instance_uid == seriesUID)
+    # if objectUID is not None:
+
+    q = q.where(Image.sop_instance_uid == objectUID)
+
+    rows = engine.execute(q).fetchall()
+    print 'Received %s rows %s' % (len(rows), rows)
+
+    for row in rows:
+        if os.path.exists(row.dicom_filepath):
+            return row.dicom_filepath
+
+    raise ValueError("No valid DICOMs found.")
+
 
 def get(studyUID, seriesUID, objectUID, format='jpeg'):
     """Function called by the main program to get an image."""
@@ -41,5 +65,5 @@ def get(studyUID, seriesUID, objectUID, format='jpeg'):
 
 if __name__ == "__main__":
     print get(studyUID="1.3.76.13.10010.0.5.74.3996.1224256625.4053",
-        seriesUID="1.3.12.2.1107.5.4.4.1053.30000008100608242373400002493",
-        objectUID="1.3.12.2.1107.5.4.4.1053.30000008100608324685900001822")
+              seriesUID="1.3.12.2.1107.5.4.4.1053.30000008100608242373400002493",
+              objectUID="1.3.12.2.1107.5.4.4.1053.30000008100608324685900001822")

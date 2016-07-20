@@ -1,0 +1,34 @@
+version: 1
+
+formatters:
+  simple:
+    format: '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+
+handlers:
+  console:
+    class: logging.StreamHandler
+    formatter: simple
+    level: INFO
+    stream: ext://sys.stdout
+  file:
+    class : logging.handlers.RotatingFileHandler
+    formatter: simple
+    filename: dblib.log
+    maxBytes: 10485760   # 10MB
+    backupCount: 3
+
+# For reference: http://docs.sqlalchemy.org/en/latest/core/engines.html#configuring-logging
+loggers:
+  #  controls SQL echoing. set to logging.INFO for SQL query output, logging.DEBUG for query + result set output.
+  sqlalchemy.engine:
+    level: INFO
+  sqlalchemy.dialects:
+    level: INFO
+  sqlalchemy.pool:
+    level: INFO
+  sqlalchemy.orm:
+    level: WARN
+
+root:
+  level: DEBUG
+  handlers: [console, file]
